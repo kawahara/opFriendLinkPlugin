@@ -24,7 +24,6 @@ class opFriendLinkTask extends sfDoctrineBaseTask
     $this->addOptions(array(
       new sfCommandOption('start-member-id', null, sfCommandOption::PARAMETER_OPTIONAL, 'Start member id', null),
       new sfCommandOption('end-member-id', null, sfCommandOption::PARAMETER_OPTIONAL, 'End member id', null),
-      new sfCommandOption('auto-config', null, sfCommandOption::PARAMETER_NONE, '', null),
     ));
     $this->detailedDescription = <<<EOF
 The [openpne:friend-link|INFO] task does things.
@@ -139,15 +138,9 @@ EOF;
     $params2 = array();
     $start = 1;
     $end = null;
-    $autoConfig = null;
-    if ($options['auto-config'])
-    {
-      $autoConfig = Doctrine::getTable('SnsConfig')->get('auto_friend_link_config', null);
-    }
 
     if (null !== $options['start-member-id'] && is_numeric($options['start-member-id']))
     {
-      $start = $options['start-member-id'];
       if ($autoConfig && $autoConfig > $options['start-member-id'])
       {
         $start = $autoConfig;
@@ -177,13 +170,6 @@ EOF;
       {
         $this->checkAndFriendLink($member1[0], $member2[0]);
       }
-      $lastMemberId = $member1[0];
-    }
-
-    if ($options['auto-config'] && isset($lastMemberId))
-    {
-      $lastMemberId = (int)$lastMemberId;
-      Doctrine::getTable('SnsConfig')->set('auto_friend_link_config', $lastMemberId + 1);
     }
   }
 }
