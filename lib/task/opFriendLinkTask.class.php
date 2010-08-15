@@ -1,5 +1,13 @@
 <?php
 
+
+/**
+ * opFriendLinkTask
+ *
+ * @package    opFriendLinkTaskPlugin
+ * @subpackage task
+ * @author     Shogo Kawahara <kawahara@bucyou.net>
+ */
 class opFriendLinkTask extends sfDoctrineBaseTask
 {
   protected
@@ -18,10 +26,10 @@ class opFriendLinkTask extends sfDoctrineBaseTask
       new sfCommandOption('end-member-id', null, sfCommandOption::PARAMETER_OPTIONAL, 'End member id', null),
     ));
     $this->detailedDescription = <<<EOF
-The [opKawa:friend-link|INFO] task does things.
+The [openpne:friend-link|INFO] task does things.
 Call it with:
 
-  [php symfony opKawa:friend-link|INFO]
+  [php symfony openpne:friend-link|INFO]
 EOF;
   }
 
@@ -126,27 +134,34 @@ EOF;
     $this->connectionOptions = $connection->getOptions();
 
     $query1 = $query2 = 'SELECT id FROM '.$this->getTableName('Member').' WHERE (is_active = 1 OR is_active IS NULL)';
-    /*
-    $params = array();
+    $params1 = array();
+    $params2 = array();
     $start = 1;
     $end = null;
     if (null !== $options['start-member-id'] && is_numeric($options['start-member-id']))
     {
-      $start    = $options['start-member-id'];
-      $query1   = ' AND id >= ?';
-      $params[] = $start;
+      $start     = $options['start-member-id'];
+      $query1   .= ' AND id >= ?';
+      $query2   .= ' AND (id <= ? OR id > ?)';
+      $params1[] = $start;
+      $params2[] = $start;
     }
+    else
+    {
+      $query2 .= ' AND id > ?';
+    }
+
     if (null !== $options['end-member-id'] && is_numeric($options['end-member-id']))
     {
-      $end      = $options['end-member-id'];
-      $query1   = ' AND id <= ?';
-      $params[] = $end;
-    }*/
+      $end       = $options['end-member-id'];
+      $query1   .= ' AND id <= ?';
+      $params1[] = $end;
+    }
 
-    $memberStmt1 = $this->executeQuery($query1);
+    $memberStmt1 = $this->executeQuery($query1, $params1);
     while ($member1 = $memberStmt1->fetch(PDO::FETCH_NUM))
     {
-      $memberStmt2 = $this->executeQuery($query2.' AND id >= ?', array($member1[0]));
+      $memberStmt2 = $this->executeQuery($query2, array_merge($params2, array($member1[0])));
       while ($member2 = $memberStmt2->fetch(PDO::FETCH_NUM))
       {
         $this->checkAndFriendLink($member1[0], $member2[0]);
