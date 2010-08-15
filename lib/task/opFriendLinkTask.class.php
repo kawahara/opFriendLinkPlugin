@@ -105,6 +105,11 @@ EOF;
       $g1 = null;
     }
 
+    if ($g1)
+    {
+      return false;
+    }
+
     if ($g2 && $g2[1])
     {
       $this->executeQuery('DELETE FROM '.$this->getTableName('MemberRelationship').' WHERE id = ?', array($g2[0]));
