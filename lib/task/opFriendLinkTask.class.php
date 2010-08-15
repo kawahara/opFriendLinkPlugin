@@ -97,8 +97,6 @@ EOF;
       .' WHERE member_id_to = ? AND member_id_from = ?';
 
     $g1 = $this->fetchRow($query, array($memberId1, $memberId2));
-    $g2 = $this->fetchRow($query, array($memberId2, $memberId1));
-
     if ($g1 && $g1[1])
     {
       $this->executeQuery('DELETE FROM '.$this->getTableName('MemberRelationship').' WHERE id = ?', array($g1[0]));
@@ -109,6 +107,8 @@ EOF;
     {
       return false;
     }
+
+    $g2 = $this->fetchRow($query, array($memberId2, $memberId1));
 
     if ($g2 && $g2[1])
     {
